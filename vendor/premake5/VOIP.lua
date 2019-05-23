@@ -157,4 +157,76 @@ project "VOIP-Client"
         buildoptions "/MD"
 		
 	filter { "system:windows", "configurations:Distribution" }
+		buildoptions "/MD"
+		
+
+-- VOIP-Server
+
+project "VOIP-Server"
+	location "../../Intermediate/ProjectFiles/"
+	kind "ConsoleApp"
+	language "C++"
+	cppdialect "C++17"
+	staticruntime "off"
+
+	targetdir ("../../Binaries/" .. outputdir .. "/%{prj.name}")
+	objdir ("../../Intermediate/" .. outputdir .. "/%{prj.name}")
+
+	files
+	{
+		"../../%{prj.name}/Source/**.h",
+		"../../%{prj.name}/Source/**.cpp"
+	}
+
+	includedirs
+	{
+		"../",
+		"../spdlog/include",
+		"../../Source",
+	}
+
+	links
+	{
+		"VOIP",
+	}
+
+	filter "system:windows"
+		systemversion "latest"
+
+		defines
+		{
+			"VOIP_PLATFORM_WINDOWS"
+		}
+	
+	filter "system:linux"
+		systemversion "latest"
+		pic "on"
+
+		defines 
+		{
+			"VOIP_PLATFORM_LINUX"
+		}
+
+	filter "configurations:Debug"
+		defines "VOIP_DEBUG"
+		runtime "Debug"
+		symbols "on"
+
+	filter "configurations:Release"
+		defines "VOIP_RELEASE"
+		runtime "Release"
+		optimize "on"
+
+	filter "configurations:Distribution"
+		defines "VOIP_DIST"
+		runtime "Release"
+		optimize "on"
+
+	filter { "system:windows", "configurations:Debug" }
+		buildoptions "/MDd"
+
+	filter { "system:windows", "configurations:Release" }
+        buildoptions "/MD"
+		
+	filter { "system:windows", "configurations:Distribution" }
         buildoptions "/MD"
