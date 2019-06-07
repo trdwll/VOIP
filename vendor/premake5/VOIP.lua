@@ -17,6 +17,9 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {}
 
 
+-- include "ENet"
+
+
 project "VOIP"
 	location "../../Intermediate/ProjectFiles/"
 	kind "StaticLib"
@@ -44,6 +47,7 @@ project "VOIP"
 
 	links 
 	{
+		-- "ENet-Static",
 	}
 
 	filter "system:windows"
@@ -52,6 +56,13 @@ project "VOIP"
 		defines
 		{
 			"VOIP_PLATFORM_WINDOWS",
+		}
+
+		links 
+		{
+			"Ws2_32.lib",
+			"Mswsock.lib",
+			"AdvApi32.lib"
 		}
 	
 	filter "system:linux"
@@ -103,19 +114,26 @@ project "VOIP-Client"
 	files
 	{
 		"../../%{prj.name}/Source/**.h",
-		"../../%{prj.name}/Source/**.cpp"
+		"../../%{prj.name}/Source/**.cpp",
+		-- "../cef/include/**.h",
+		-- "../cef/tests/**.h"
 	}
 
 	includedirs
 	{
-		"../",
+		"../../VOIP/Source",
 		"../spdlog/include",
 		"../../Source",
+		-- "../cef/include",
+		-- "../cef/tests",
 	}
 
 	links
 	{
 		"VOIP",
+		-- "../cef-win-build/Release/cef_sandbox.lib",
+		-- "../cef-win-build/Release/libcef.lib",
+		-- "../cef-win-build/Release/libcef_dll_wrapper.lib",
 	}
 
 	filter "system:windows"
@@ -180,7 +198,7 @@ project "VOIP-Server"
 
 	includedirs
 	{
-		"../",
+		"../../VOIP/Source",
 		"../spdlog/include",
 		"../../Source",
 	}
