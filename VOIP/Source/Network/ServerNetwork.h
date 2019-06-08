@@ -17,31 +17,30 @@
 namespace VOIP {
 
 	/** Use TCP for text */
-	class ClientTCPNetwork : public TCPNetwork
+	class ServerTCPNetwork : public TCPNetwork
 	{
 	public:
 
-		ClientTCPNetwork();
-		virtual ~ClientTCPNetwork();
+		ServerTCPNetwork();
+		virtual ~ServerTCPNetwork();
 
 		void Connect() override;
 		void Disconnect() override;
-
 		void SendChatMessage(char* Message) override;
-
-	private:
 
 #if VOIP_PLATFORM_WINDOWS
 
 		WSADATA m_wsaData;
-		SOCKET m_ConnectSocket = INVALID_SOCKET;
-		struct addrinfo* m_result = NULL;
-		struct addrinfo* m_ptr = NULL;
-		struct addrinfo m_hints;
-		
-		char m_recvBuffer[512];
-
 		int32 m_Result;
+
+		SOCKET m_ListenSocket = INVALID_SOCKET;
+		SOCKET m_ClientSocket = INVALID_SOCKET;
+
+		struct addrinfo* m_result = NULL;
+		struct addrinfo m_hints;
+
+		int32 m_SendResult;
+		char m_recvBuffer[512];
 		int32 m_recvBufferLength = 512;
 
 #endif
@@ -49,14 +48,18 @@ namespace VOIP {
 	};
 
 	/** Use UDP for voice */
-	class ClientUDPNetwork : public UDPNetwork
+	class ServerUDPNetwork : public UDPNetwork
 	{
 	public:
 
-		ClientUDPNetwork();
-		virtual ~ClientUDPNetwork();
+		ServerUDPNetwork();
+		virtual ~ServerUDPNetwork();
 
 		void Connect() override;
 		void Disconnect() override;
+
+#if VOIP_PLATFORM_WINDOWS
+
+#endif
 	};
 }

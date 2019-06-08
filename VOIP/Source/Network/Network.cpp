@@ -24,6 +24,26 @@ namespace VOIP {
 
 	}
 
+#if VOIP_PLATFORM_WINDOWS
+
+	//struct sockaddr_in TCPNetwork::GetHostAsSockAddr() const
+	//{
+	//	char len[INET_ADDRSTRLEN];
+
+	//	inet_pton(AF_INET, m_host.c_str(), len);
+
+	//	inet_ntop(AF_INET, &(m_hostsocket.sin_addr), len, INET_ADDRSTRLEN);
+
+	//	return m_hostsocket;
+	//	/*in_addr host;
+
+	//	inet_pton(AF_INET, m_host.c_str(), &host);
+
+	//	return ((sockaddr_in)m_hostsocket);*/
+	//}
+
+#endif
+
 	void TCPNetwork::SetHost(const std::string& host)
 	{
 		m_host = host;
@@ -34,16 +54,6 @@ namespace VOIP {
 		if (port > 25565 || port == 0) return;
 
 		m_port = port;
-	}
-
-	void TCPNetwork::Connect()
-	{
-		VOIP_CORE_INFO("Connecting to {0}:{1}", m_host, m_port);
-	}
-
-	void TCPNetwork::Disconnect()
-	{
-		VOIP_CORE_INFO("Disconnecting from {0}:{1}", m_host, m_port);
 	}
 
 	/************************************************************************/
@@ -75,16 +85,6 @@ namespace VOIP {
 	void UDPNetwork::SetPort(uint16 port)
 	{
 		m_port = port;
-	}
-
-	void UDPNetwork::Connect()
-	{
-
-	}
-
-	void UDPNetwork::Disconnect()
-	{
-
 	}
 
 }

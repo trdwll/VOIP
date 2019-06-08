@@ -14,6 +14,12 @@ int main()
 	client_tcp_connection->SetPort(10005);
 
 	client_tcp_connection->Connect();
+
+	std::cout << "Type: ";
+	char* msg = "";
+	std::cin >> msg;
+
+	client_tcp_connection->SendChatMessage(msg);
 }
 
 #endif
