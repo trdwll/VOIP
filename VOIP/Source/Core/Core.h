@@ -18,3 +18,5 @@
 #endif
 
 #define DEFAULT_BUFFER_SIZE 8192
+
+#define DEFAULT_PORT 10005

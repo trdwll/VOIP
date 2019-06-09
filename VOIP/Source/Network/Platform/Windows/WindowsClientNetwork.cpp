@@ -20,17 +20,20 @@ namespace VOIP {
 
 	bool WindowsClientTCPNetwork::Connect()
 	{
-		VOIP_CLIENT_INFO("WINDOWS:TCP: Connecting to {0}:{1}", m_host, m_port);
-		m_ConnectionStatus = EConnectionStatus::CS_CONNECTING;
-
 		if (m_host.empty() || m_port == 0)
 		{
 			VOIP_CORE_ERROR("Host or port haven't been set.");
 			m_ConnectionStatus = EConnectionStatus::CS_CONNECTERROR;
 			return false;
 		}
+		
+		VOIP_CLIENT_INFO("WINDOWS:TCP: Connecting to {0}:{1}", m_host, m_port);
+		m_ConnectionStatus = EConnectionStatus::CS_CONNECTING;
 
-		if (!Init()) return false;
+		if (!Init())
+		{
+			return false;
+		}
 
 		// Create the socket for the client
 		m_Socket = CreateSocket();
@@ -78,7 +81,7 @@ namespace VOIP {
 	{
 		WSADATA wsaData;
 		
-		uint32 Result = WSAStartup(MAKEWORD(2, 2), &wsaData);
+		int32 Result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 		if (Result != 0)
 		{
 			VOIP_CORE_ERROR("WSAStartup failed. Error: {0}", Result);

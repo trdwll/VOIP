@@ -120,10 +120,41 @@ namespace VOIP {
 		m_Hints.sin_port = m_port;
 		inet_pton(AF_INET, m_host.c_str(), &m_Hints.sin_addr);
 
+
+		// This code kinda fixes the server
+		//struct addrinfo* result = NULL;
+		//struct addrinfo hints;
+
+		//ZeroMemory(&hints, sizeof(hints));
+		//hints.ai_family = AF_INET;
+		//hints.ai_socktype = SOCK_STREAM;
+		//hints.ai_protocol = IPPROTO_TCP;
+		//hints.ai_flags = AI_PASSIVE;
+
+		//int32 iResult;
+
+		//// Resolve the server address and port
+		//iResult = getaddrinfo(NULL, std::to_string(m_port).c_str(), &hints, &result);
+		//if (iResult != 0) {
+		//	VOIP_CORE_ERROR("getaddrinfo failed. Error: {0}", iResult);
+		//	WSACleanup();
+		//	return 1;
+		//}
+
+		//iResult = bind(serverSocket, result->ai_addr, (int)result->ai_addrlen);
+		//if (iResult == SOCKET_ERROR) {
+		//	VOIP_CORE_ERROR("Binding failed. Error: {0}", WSAGetLastError());
+		//	freeaddrinfo(result);
+		//	closesocket(serverSocket);
+		//	WSACleanup();
+		//	return 1;
+		//}
+
+
 		int32 Result = bind(serverSocket, (sockaddr*)& m_Hints, sizeof(m_Hints));
 		if (Result == SOCKET_ERROR)
 		{
-			VOIP_CORE_ERROR("Unable to bind address/port ({0}:{1}). Error: {3}", m_host, m_port, WSAGetLastError());
+			VOIP_CORE_ERROR("Unable to bind address/port ({0}:{1}). Error: {2}", m_host, m_port, WSAGetLastError());
 			WSACleanup();
 			return SOCKET_ERROR;
 		}
@@ -131,7 +162,7 @@ namespace VOIP {
 		int32 Result2 = listen(serverSocket, SOMAXCONN);
 		if (Result2 == SOCKET_ERROR)
 		{
-			VOIP_CORE_ERROR("Unable to listen on address/port ({0}:{1}). Error: {3}", m_host, m_port, WSAGetLastError());
+			VOIP_CORE_ERROR("Unable to listen on address/port ({0}:{1}). Error: {2}", m_host, m_port, WSAGetLastError());
 			WSACleanup();
 			return SOCKET_ERROR;
 		}

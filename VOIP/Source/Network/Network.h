@@ -52,6 +52,9 @@ namespace VOIP {
 		void SetHost(const std::string& host);
 		void SetPort(uint16 port);
 
+		bool IsPortValid(uint16 port) const;
+		//bool IsHostValid(const std::string& host) const;
+
 		std::string GetIdentifier() const { return m_host + ":" + std::to_string(m_port); }
 	
 	public:

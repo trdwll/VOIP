@@ -20,7 +20,7 @@ int main()
 	// client_tcp_connection->SetClientData(&ClientData);
 
 	client_tcp->SetHost("localhost");
-	client_tcp->SetPort(10006);
+	client_tcp->SetPort(DEFAULT_PORT);
 
 	if (client_tcp->Connect())
 	{

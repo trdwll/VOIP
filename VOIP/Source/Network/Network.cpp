@@ -39,12 +39,18 @@ namespace VOIP {
 
 	void Network::SetPort(uint16 port)
 	{
-		if (port > 25565 || port == 0)
+		if (!IsPortValid(port))
 		{
-			m_port = 10005;
+			m_port = DEFAULT_PORT;
+			return;
 		}
 
 		m_port = port;
+	}
+
+	bool Network::IsPortValid(uint16 port) const
+	{
+		return port <= 25565 && port > 0;
 	}
 
 	ServerTCPNetwork* Network::CreateServerTCPNetwork()
