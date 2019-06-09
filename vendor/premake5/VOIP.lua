@@ -17,9 +17,6 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {}
 
 
--- include "ENet"
-
-
 project "VOIP"
 	location "../../Intermediate/ProjectFiles/"
 	kind "StaticLib"
@@ -72,6 +69,14 @@ project "VOIP"
 		defines 
 		{
 			"VOIP_PLATFORM_LINUX"
+		}
+
+	filter "system:macosx"
+		systemversion "latest"
+
+		defines 
+		{
+			"VOIP_PLATFORM_MAC"
 		}
 
 	filter "configurations:Debug"

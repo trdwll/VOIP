@@ -5,15 +5,17 @@
 #include "Network/ServerNetwork.h"
 
 #ifdef VOIP_PLATFORM_WINDOWS
-#include "Network/Platform//Windows/WindowsClientNetwork.h"
-#include "Network/Platform//Windows/WindowsServerNetwork.h"
+#include "Network/Platform/Windows/WindowsClientNetwork.h"
+#include "Network/Platform/Windows/WindowsServerNetwork.h"
+#elif VOIP_PLATFORM_LINUX
+#include "Network/Platform/Linux/LinuxClientNetwork.h"
+#include "Network/Platform/Linux/LinuxServerNetwork.h"
+#elif VOIP_PLATFORM_MAC
+#include "Network/Platform/Mac/MacClientNetwork.h"
+#include "Network/Platform/Mac/MacServerNetwork.h"
 #endif
 
 namespace VOIP {
-
-	/************************************************************************/
-	/* TCP Networking                                                       */
-	/************************************************************************/
 
 	Network::Network()
 	{
@@ -59,6 +61,8 @@ namespace VOIP {
 		return new WindowsServerTCPNetwork();
 #elif VOIP_PLATFORM_LINUX
 		return new LinuxServerTCPNetwork();
+#elif VOIP_PLATFORM_MAC
+		return new MacServerTCPNetwork();
 #endif
 		return nullptr;
 	}
@@ -69,6 +73,8 @@ namespace VOIP {
 		return new WindowsServerUDPNetwork();
 #elif VOIP_PLATFORM_LINUX
 		return new LinuxServerUDPNetwork();
+#elif VOIP_PLATFORM_MAC
+		return new MacServerUDPNetwork();
 #endif
 		return nullptr;
 	}
@@ -79,6 +85,8 @@ namespace VOIP {
 		return new WindowsClientTCPNetwork();
 #elif VOIP_PLATFORM_LINUX
 		return new LinuxClientTCPNetwork();
+#elif VOIP_PLATFORM_MAC
+		return new MacClientTCPNetwork();
 #endif
 		return nullptr;
 	}
@@ -89,10 +97,10 @@ namespace VOIP {
 		return new WindowsClientUDPNetwork();
 #elif VOIP_PLATFORM_LINUX
 		return new LinuxClientUDPNetwork();
+#elif VOIP_PLATFORM_MAC
+		return new MacClientUDPNetwork();
 #endif
 		return nullptr;
 	}
-
-
 }
 
