@@ -11,8 +11,6 @@
 
 namespace VOIP {
 
-	typedef void(*MessageReceivedHandler)(std::string message);
-
 	/** Use TCP for text */
 	class WindowsClientTCPNetwork : public ClientTCPNetwork
 	{
@@ -26,6 +24,8 @@ namespace VOIP {
 
 		void SendChatMessage(const std::string& Message) override;
 
+		void Test() {}
+
 	private:
 		/** Variables */
 
@@ -33,8 +33,6 @@ namespace VOIP {
 		sockaddr_in m_Hints;
 		bool m_bIsReceiveThreadRunning;
 		std::thread m_ReceiveThread;
-
-		MessageReceivedHandler MessageReceivedEvent;
 
 	private:
 		/** Methods */
@@ -50,10 +48,10 @@ namespace VOIP {
 
 	public:
 		/** Create the receive thread */
-		void ListenReceiveThread(MessageReceivedHandler handler);
+		void ListenReceiveThread(MessageReceivedHandler handler) override;
 
 		/** Receive the content from the thread */
-		bool Receive(MessageReceivedHandler handler);
+		bool Receive(MessageReceivedHandler handler) override;
 
 	};
 
@@ -67,6 +65,12 @@ namespace VOIP {
 
 		bool Connect() override;
 		void Disconnect() override;
+
+		/** Create the receive thread */
+		void ListenReceiveThread(MessageReceivedHandler handler) override;
+
+		/** Receive the content from the thread */
+		bool Receive(MessageReceivedHandler handler) override;
 
 	private:
 		bool Init() override;

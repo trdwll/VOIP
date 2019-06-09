@@ -5,28 +5,40 @@
 #include <memory.h>
 #include <string.h>
 
+void MsgRecv(std::string Message) 
+{
+	std::cout << "MSG: " << Message << std::endl;
+}
+
 int main()
 {
 	VOIP::Logger::Init();
 
-	std::shared_ptr<VOIP::ClientTCPNetwork> client_tcp_connection(VOIP::TCPNetwork::CreateClientTCPNetwork());
+	std::shared_ptr<VOIP::ClientTCPNetwork> client_tcp(VOIP::TCPNetwork::CreateClientTCPNetwork());
 
-	// std::shared_ptr<VOIP::ClientTCPNetwork> client_tcp_connection = std::make_shared<VOIP::ClientTCPNetwork>();
-	// client_tcp_connection->SetClientUsername("TestUsername");
+	// SClientData* ClientData;
+	// client_tcp_connection->SetClientData(&ClientData);
 
-	client_tcp_connection->SetHost("localhost");
-	client_tcp_connection->SetPort(10006);
+	client_tcp->SetHost("localhost");
+	client_tcp->SetPort(10006);
 
-	if (client_tcp_connection->Connect())
+	if (client_tcp->Connect())
 	{
-		// do magic
+		client_tcp->ListenReceiveThread(MsgRecv);
+
+		std::string inputstr;
+		while (true)
+		{
+			std::getline(std::cin, inputstr);
+			if (inputstr == "exit")
+			{
+				break;
+			}
+
+			client_tcp->SendChatMessage(inputstr);
+		}
 	}
 
 	std::cin.ignore(); // basically a pause or wait (press enter to continue)
-	//std::cout << "Type: ";
-	//char* msg = "";
-	//std::cin >> msg;
-
-	//client_tcp_connection->SendChatMessage(msg);
 }
 

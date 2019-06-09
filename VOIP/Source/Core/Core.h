@@ -16,3 +16,5 @@
 #else
 	#define DEPRECATED(msg) 
 #endif
+
+#define DEFAULT_BUFFER_SIZE 8192

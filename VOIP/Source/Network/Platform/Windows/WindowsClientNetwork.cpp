@@ -15,7 +15,7 @@ namespace VOIP {
 
 	WindowsClientTCPNetwork::~WindowsClientTCPNetwork()
 	{
-		Disconnect();
+		Disconnect(); // This probably isn't safe, but #yolo for now
 	}
 
 	bool WindowsClientTCPNetwork::Connect()
@@ -97,7 +97,7 @@ namespace VOIP {
 			VOIP_CORE_ERROR("CreateSocket() failed. Error: {0}", WSAGetLastError());
 			m_ConnectionStatus = EConnectionStatus::CS_CONNECTERROR;
 			WSACleanup();
-			return clientSocket;
+			return INVALID_SOCKET;
 		}
 
 		m_Hints.sin_family = AF_INET;
@@ -112,15 +112,15 @@ namespace VOIP {
 		m_bIsReceiveThreadRunning = true;
 		while (m_bIsReceiveThreadRunning)
 		{
-			char buf[4096];
-			ZeroMemory(buf, 4096);
+			char buf[DEFAULT_BUFFER_SIZE];
+			ZeroMemory(buf, DEFAULT_BUFFER_SIZE);
 
-			uint32 BytesReceived = recv(m_Socket, buf, 4096, 0);
+			uint32 BytesReceived = recv(m_Socket, buf, DEFAULT_BUFFER_SIZE, 0);
 			if (BytesReceived > 0)
 			{
-				if (MessageReceivedEvent != NULL)
+				if (m_MessageReceivedEvent != NULL)
 				{
-					MessageReceivedEvent(std::string(buf, 0, BytesReceived));
+					m_MessageReceivedEvent(std::string(buf, 0, BytesReceived));
 				}
 			}
 		}
@@ -128,7 +128,7 @@ namespace VOIP {
 
 	void WindowsClientTCPNetwork::ListenReceiveThread(MessageReceivedHandler handler)
 	{
-		MessageReceivedEvent = handler;
+		m_MessageReceivedEvent = handler;
 
 		this->m_ReceiveThread = std::thread([&]() 
 		{
@@ -138,23 +138,25 @@ namespace VOIP {
 
 	bool WindowsClientTCPNetwork::Receive(MessageReceivedHandler handler)
 	{
-		MessageReceivedEvent = handler;
+		m_MessageReceivedEvent = handler;
 
 		if (m_Socket == INVALID_SOCKET)
 		{
 			return false;
 		}
 
-		char buf[4096];
+		char buf[DEFAULT_BUFFER_SIZE];
 
-		int32 BytesReceived = recv(m_Socket, buf, 4096, 0);
+		int32 BytesReceived = recv(m_Socket, buf, DEFAULT_BUFFER_SIZE, 0);
 		if (BytesReceived > 0)
 		{
-			if (MessageReceivedEvent != NULL)
+			if (m_MessageReceivedEvent != NULL)
 			{
-				MessageReceivedEvent(std::string(buf, 0, BytesReceived));
+				m_MessageReceivedEvent(std::string(buf, 0, BytesReceived));
 			}
 		}
+
+		return true;
 	}
 
 	void WindowsClientTCPNetwork::SendChatMessage(const std::string& Message)
@@ -212,6 +214,16 @@ namespace VOIP {
 
 		VOIP_CLIENT_INFO("WINDOWS:UDP: Disconnected");
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTED;
+	}
+
+	void WindowsClientUDPNetwork::ListenReceiveThread(MessageReceivedHandler handler)
+	{
+
+	}
+
+	bool WindowsClientUDPNetwork::Receive(MessageReceivedHandler handler)
+	{
+		return false;
 	}
 
 	bool WindowsClientUDPNetwork::Init()

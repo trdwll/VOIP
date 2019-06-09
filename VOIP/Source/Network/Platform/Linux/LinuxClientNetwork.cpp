@@ -53,6 +53,16 @@ namespace VOIP {
 	}
 
 
+	void LinuxClientTCPNetwork::ListenReceiveThread(MessageReceivedHandler handler)
+	{
+
+	}
+
+	bool LinuxClientTCPNetwork::Receive(MessageReceivedHandler handler)
+	{
+		return false;
+	}
+
 	bool LinuxClientTCPNetwork::Init()
 	{
 		return false;
@@ -90,6 +100,16 @@ namespace VOIP {
 
 		VOIP_CLIENT_INFO("LINUX:UDP: Disconnected");
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTED;
+	}
+
+	void LinuxClientUDPNetwork::ListenReceiveThread(MessageReceivedHandler handler)
+	{
+
+	}
+
+	bool LinuxClientUDPNetwork::Receive(MessageReceivedHandler handler)
+	{
+		return false;
 	}
 
 	bool LinuxClientUDPNetwork::Init()

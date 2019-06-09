@@ -51,6 +51,8 @@ namespace VOIP {
 	{
 #ifdef VOIP_PLATFORM_WINDOWS
 		return new WindowsServerTCPNetwork();
+#elif VOIP_PLATFORM_LINUX
+		return new LinuxServerTCPNetwork();
 #endif
 		return nullptr;
 	}
@@ -59,6 +61,8 @@ namespace VOIP {
 	{
 #ifdef VOIP_PLATFORM_WINDOWS
 		return new WindowsServerUDPNetwork();
+#elif VOIP_PLATFORM_LINUX
+		return new LinuxServerUDPNetwork();
 #endif
 		return nullptr;
 	}
@@ -67,6 +71,8 @@ namespace VOIP {
 	{
 #ifdef VOIP_PLATFORM_WINDOWS
 		return new WindowsClientTCPNetwork();
+#elif VOIP_PLATFORM_LINUX
+		return new LinuxClientTCPNetwork();
 #endif
 		return nullptr;
 	}
@@ -75,6 +81,8 @@ namespace VOIP {
 	{
 #ifdef VOIP_PLATFORM_WINDOWS
 		return new WindowsClientUDPNetwork();
+#elif VOIP_PLATFORM_LINUX
+		return new LinuxClientUDPNetwork();
 #endif
 		return nullptr;
 	}

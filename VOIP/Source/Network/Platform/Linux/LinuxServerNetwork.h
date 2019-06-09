@@ -15,6 +15,12 @@ namespace VOIP {
 		void Disconnect() override;
 		void SendChatMessage(const std::string& Message) override;
 
+		/** Create the receive thread */
+		void ListenReceiveThread(MessageReceivedHandler handler) override;
+
+		/** Receive the content from the thread */
+		bool Receive(MessageReceivedHandler handler) override;
+
 	private:
 		bool Init() override;
 	};
@@ -29,6 +35,12 @@ namespace VOIP {
 
 		bool Connect() override;
 		void Disconnect() override;
+
+		/** Create the receive thread */
+		void ListenReceiveThread(MessageReceivedHandler handler) override;
+
+		/** Receive the content from the thread */
+		bool Receive(MessageReceivedHandler handler) override;
 
 	private:
 		bool Init() override;

@@ -6,6 +6,14 @@
  */
 namespace VOIP {
 
+	typedef void(*MessageReceivedHandler)(std::string message);
+
+#ifdef VOIP_PLATFORM_WINDOWS
+	typedef void(*MessageReceivedServerHandler)(class TCPNetwork* Listener, SOCKET socketID, std::string message);
+#elif VOIP_PLATFORM_LINUX
+	typedef void(*MessageReceivedServerHandler)(class TCPNetwork* Listener, int32 socketID, std::string message);
+#endif
+
 	enum class EConnectionStatus
 	{
 		CS_CONNECTING,
@@ -48,6 +56,10 @@ namespace VOIP {
 		virtual bool Connect() = 0;
 		virtual void Disconnect() = 0;
 
+		// These only need to be on the client not server
+		virtual void ListenReceiveThread(MessageReceivedHandler handler) = 0;
+		virtual bool Receive(MessageReceivedHandler handler) = 0;
+
 	private:
 		virtual bool Init() = 0;
 
@@ -58,6 +70,12 @@ namespace VOIP {
 		uint16 m_port;
 
 		EConnectionStatus m_ConnectionStatus;
+
+		// this only needs to be on the client
+		MessageReceivedHandler m_MessageReceivedEvent;
+
+		// this only needs to be on the server 
+		MessageReceivedServerHandler m_MessageReceivedServerEvent;
 	};
 
 	// Whatever's defined here can be accessible via server or client so beware
@@ -65,7 +83,15 @@ namespace VOIP {
 	{
 	public:
 
-		virtual void SendChatMessage(const std::string& Message) = 0;
+#ifdef VOIP_PLATFORM_WINDOWS
+		/** Send a message to all clients. */
+		//virtual void SendChatMessage(const std::string& Message) = 0;
+
+		/** Send a message to a specific client. */
+		virtual void SendChatMessage(const std::string& Message, SOCKET ClientSocket) = 0;
+#elif VOIP_PLATFORM_LINUX
+
+#endif 
 	};
 
 	// Whatever's defined here can be accessible via server or client so beware
