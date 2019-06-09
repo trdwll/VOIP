@@ -8,7 +8,7 @@ namespace VOIP {
 	/* TCP Networking                                                       */
 	/************************************************************************/
 
-	LinuxServerTCPNetwork::LinuxServerTCPNetwork()
+	/*LinuxServerTCPNetwork::LinuxServerTCPNetwork()
 	{
 
 	}
@@ -44,12 +44,12 @@ namespace VOIP {
 
 	}
 
-	void LinuxServerTCPNetwork::ListenReceiveThread(MessageReceivedHandler handler)
+	void LinuxServerTCPNetwork::ListenReceiveThread(ClientMessageReceivedHandler handler)
 	{
 
 	}
 
-	bool LinuxServerTCPNetwork::Receive(MessageReceivedHandler handler)
+	bool LinuxServerTCPNetwork::Receive(ClientMessageReceivedHandler handler)
 	{
 		return false;
 	}
@@ -57,13 +57,13 @@ namespace VOIP {
 	bool LinuxServerTCPNetwork::Init()
 	{
 		return false;
-	}
+	}*/
 
 	/************************************************************************/
 	/* UDP Networking                                                       */
 	/************************************************************************/
 
-	LinuxServerUDPNetwork::LinuxServerUDPNetwork()
+	/*LinuxServerUDPNetwork::LinuxServerUDPNetwork()
 	{
 
 	}
@@ -93,12 +93,12 @@ namespace VOIP {
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTED;
 	}
 
-	void LinuxServerUDPNetwork::ListenReceiveThread(MessageReceivedHandler handler)
+	void LinuxServerUDPNetwork::ListenReceiveThread(ClientMessageReceivedHandler handler)
 	{
 
 	}
 
-	bool LinuxServerUDPNetwork::Receive(MessageReceivedHandler handler)
+	bool LinuxServerUDPNetwork::Receive(ClientMessageReceivedHandler handler)
 	{
 		return false;
 	}
@@ -106,6 +106,6 @@ namespace VOIP {
 	bool LinuxServerUDPNetwork::Init()
 	{
 		return false;
-	}
+	}*/
 
 }

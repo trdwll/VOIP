@@ -21,14 +21,12 @@ namespace VOIP {
 
 		bool Connect() override;
 		void Disconnect() override;
-		//void SendChatMessage(const std::string& Message) override; // this sends to all clients as the server
-		void SendChatMessage(const std::string& Message, SOCKET ClientSocket) override; // this sends a message as a client to another client
 
-		/** Create the receive thread */
-		void ListenReceiveThread(MessageReceivedHandler handler) override;
+		// sends to all users except self
+		void SendChatMessageToAll(std::string Message) override;
 
-		/** Receive the content from the thread */
-		bool Receive(MessageReceivedHandler handler) override;
+		// send to a specific user
+		void SendChatMessageTo(std::string Message, SOCKET ClientSocket) override;
 
 	private:
 		/** Variables */
@@ -64,12 +62,6 @@ namespace VOIP {
 
 		bool Connect() override;
 		void Disconnect() override;
-
-		/** Create the receive thread */
-		void ListenReceiveThread(MessageReceivedHandler handler) override;
-
-		/** Receive the content from the thread */
-		bool Receive(MessageReceivedHandler handler) override;
 
 	private:
 		bool Init() override;

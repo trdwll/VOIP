@@ -6,43 +6,43 @@ namespace VOIP {
 	/** Use TCP for text */
 	class LinuxServerTCPNetwork : public ServerTCPNetwork
 	{
-	public:
+	//public:
 
-		LinuxServerTCPNetwork();
-		virtual ~LinuxServerTCPNetwork();
+	//	LinuxServerTCPNetwork();
+	//	virtual ~LinuxServerTCPNetwork();
 
-		bool Connect() override;
-		void Disconnect() override;
-		void SendChatMessage(const std::string& Message) override;
+	//	bool Connect() override;
+	//	void Disconnect() override;
+	//	void SendChatMessage(const std::string& Message) override;
 
-		/** Create the receive thread */
-		void ListenReceiveThread(MessageReceivedHandler handler) override;
+	//	/** Create the receive thread */
+	//	void ListenReceiveThread(ClientMessageReceivedHandler handler) override;
 
-		/** Receive the content from the thread */
-		bool Receive(MessageReceivedHandler handler) override;
+	//	/** Receive the content from the thread */
+	//	bool Receive(ClientMessageReceivedHandler handler) override;
 
-	private:
-		bool Init() override;
+	//private:
+	//	bool Init() override;
 	};
 
 	/** Use UDP for voice */
 	class LinuxServerUDPNetwork : public ServerUDPNetwork
 	{
-	public:
+	//public:
 
-		LinuxServerUDPNetwork();
-		virtual ~LinuxServerUDPNetwork();
+	//	LinuxServerUDPNetwork();
+	//	virtual ~LinuxServerUDPNetwork();
 
-		bool Connect() override;
-		void Disconnect() override;
+	//	bool Connect() override;
+	//	void Disconnect() override;
 
-		/** Create the receive thread */
-		void ListenReceiveThread(MessageReceivedHandler handler) override;
+	//	/** Create the receive thread */
+	//	void ListenReceiveThread(ClientMessageReceivedHandler handler) override;
 
-		/** Receive the content from the thread */
-		bool Receive(MessageReceivedHandler handler) override;
+	//	/** Receive the content from the thread */
+	//	bool Receive(ClientMessageReceivedHandler handler) override;
 
-	private:
-		bool Init() override;
+	//private:
+	//	bool Init() override;
 	};
 }

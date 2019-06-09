@@ -1,17 +1,21 @@
 #pragma once
 #include "voippch.h"
 
+#ifdef VOIP_PLATFORM_WINDOWS
+#include <winsock2.h>
+#endif
+
 /**
  * Abstract class that all Networking classes should be derived from
  */
 namespace VOIP {
 
-	typedef void(*MessageReceivedHandler)(std::string message);
+	typedef void(*ClientMessageReceivedHandler)(std::string message);
 
 #ifdef VOIP_PLATFORM_WINDOWS
-	typedef void(*MessageReceivedServerHandler)(class TCPNetwork* Listener, SOCKET socketID, std::string message);
+	typedef void(*ServerMessageReceivedHandler)(class TCPNetwork* Listener, SOCKET socketID, std::string message);
 #elif VOIP_PLATFORM_LINUX
-	typedef void(*MessageReceivedServerHandler)(class TCPNetwork* Listener, int32 socketID, std::string message);
+	typedef void(*ServerMessageReceivedHandler)(class TCPNetwork* Listener, int32 socketID, std::string message);
 #endif
 
 	enum class EConnectionStatus
@@ -56,10 +60,6 @@ namespace VOIP {
 		virtual bool Connect() = 0;
 		virtual void Disconnect() = 0;
 
-		// These only need to be on the client not server
-		virtual void ListenReceiveThread(MessageReceivedHandler handler) = 0;
-		virtual bool Receive(MessageReceivedHandler handler) = 0;
-
 	private:
 		virtual bool Init() = 0;
 
@@ -72,10 +72,10 @@ namespace VOIP {
 		EConnectionStatus m_ConnectionStatus;
 
 		// this only needs to be on the client
-		MessageReceivedHandler m_MessageReceivedEvent;
+		ClientMessageReceivedHandler m_ClientMessageReceivedEvent;
 
 		// this only needs to be on the server 
-		MessageReceivedServerHandler m_MessageReceivedServerEvent;
+		ServerMessageReceivedHandler m_ServerMessageReceivedEvent;
 	};
 
 	// Whatever's defined here can be accessible via server or client so beware
@@ -88,7 +88,7 @@ namespace VOIP {
 		//virtual void SendChatMessage(const std::string& Message) = 0;
 
 		/** Send a message to a specific client. */
-		virtual void SendChatMessage(const std::string& Message, SOCKET ClientSocket) = 0;
+		//virtual void SendChatMessage(const std::string& Message, SOCKET ClientSocket) = 0;
 #elif VOIP_PLATFORM_LINUX
 
 #endif 

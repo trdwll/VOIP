@@ -118,17 +118,17 @@ namespace VOIP {
 			uint32 BytesReceived = recv(m_Socket, buf, DEFAULT_BUFFER_SIZE, 0);
 			if (BytesReceived > 0)
 			{
-				if (m_MessageReceivedEvent != NULL)
+				if (m_ClientMessageReceivedEvent != NULL)
 				{
-					m_MessageReceivedEvent(std::string(buf, 0, BytesReceived));
+					m_ClientMessageReceivedEvent(std::string(buf, 0, BytesReceived));
 				}
 			}
 		}
 	}
 
-	void WindowsClientTCPNetwork::ListenReceiveThread(MessageReceivedHandler handler)
+	void WindowsClientTCPNetwork::ListenReceiveThread(ClientMessageReceivedHandler handler)
 	{
-		m_MessageReceivedEvent = handler;
+		m_ClientMessageReceivedEvent = handler;
 
 		this->m_ReceiveThread = std::thread([&]() 
 		{
@@ -136,9 +136,9 @@ namespace VOIP {
 		});
 	}
 
-	bool WindowsClientTCPNetwork::Receive(MessageReceivedHandler handler)
+	bool WindowsClientTCPNetwork::Receive(ClientMessageReceivedHandler handler)
 	{
-		m_MessageReceivedEvent = handler;
+		m_ClientMessageReceivedEvent = handler;
 
 		if (m_Socket == INVALID_SOCKET)
 		{
@@ -150,16 +150,16 @@ namespace VOIP {
 		int32 BytesReceived = recv(m_Socket, buf, DEFAULT_BUFFER_SIZE, 0);
 		if (BytesReceived > 0)
 		{
-			if (m_MessageReceivedEvent != NULL)
+			if (m_ClientMessageReceivedEvent != NULL)
 			{
-				m_MessageReceivedEvent(std::string(buf, 0, BytesReceived));
+				m_ClientMessageReceivedEvent(std::string(buf, 0, BytesReceived));
 			}
 		}
 
 		return true;
 	}
 
-	void WindowsClientTCPNetwork::SendChatMessage(const std::string& Message)
+	void WindowsClientTCPNetwork::SendChatMessage(std::string Message)
 	{
 		if (m_ConnectionStatus == EConnectionStatus::CS_CONNECTED)
 		{
@@ -214,16 +214,6 @@ namespace VOIP {
 
 		VOIP_CLIENT_INFO("WINDOWS:UDP: Disconnected");
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTED;
-	}
-
-	void WindowsClientUDPNetwork::ListenReceiveThread(MessageReceivedHandler handler)
-	{
-
-	}
-
-	bool WindowsClientUDPNetwork::Receive(MessageReceivedHandler handler)
-	{
-		return false;
 	}
 
 	bool WindowsClientUDPNetwork::Init()

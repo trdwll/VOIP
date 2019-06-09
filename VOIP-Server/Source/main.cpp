@@ -32,7 +32,7 @@ int main()
 			if (inputstr == "exit") break;
 
 			inputstr += "\n";
-			server_tcp_connection->SendChatMessage("Hey man", NULL);
+			server_tcp_connection->SendChatMessageTo("Hey man", NULL);
 		}
 	}
 }

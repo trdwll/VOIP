@@ -23,7 +23,12 @@ namespace VOIP {
 		VOIP_CLIENT_INFO("TCP: Binding to {0}:{1}", m_host, m_port);
 		m_ConnectionStatus = EConnectionStatus::CS_CONNECTING;
 
-		Disconnect();
+		if (!Init())
+		{
+			return false;
+		}
+
+		RunThread();
 
 		return true;
 	}
@@ -63,7 +68,7 @@ namespace VOIP {
 	}
 
 
-	/*void WindowsServerTCPNetwork::SendChatMessage(const std::string& Message)
+	void WindowsServerTCPNetwork::SendChatMessageToAll(std::string Message)
 	{
 		if (!Message.empty())
 		{
@@ -76,24 +81,14 @@ namespace VOIP {
 				}
 			}
 		}
-	}*/
+	}
 
-	void WindowsServerTCPNetwork::SendChatMessage(const std::string& Message, SOCKET ClientSocket)
+	void WindowsServerTCPNetwork::SendChatMessageTo(std::string Message, SOCKET ClientSocket)
 	{
 		if (!Message.empty())
 		{
 			send(ClientSocket, Message.c_str(), Message.size() + 1, 0);
 		}
-	}
-
-	void WindowsServerTCPNetwork::ListenReceiveThread(MessageReceivedHandler handler)
-	{
-
-	}
-
-	bool WindowsServerTCPNetwork::Receive(MessageReceivedHandler handler)
-	{
-		return false;
 	}
 
 	bool WindowsServerTCPNetwork::Init()
@@ -103,6 +98,7 @@ namespace VOIP {
 		int32 Result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 		if (Result != 0)
 		{
+			VOIP_CORE_ERROR("WSAStartup failed. Error: {0}", WSAGetLastError());
 			return false;
 		}
 
@@ -118,12 +114,13 @@ namespace VOIP {
 			WSACleanup();
 			return INVALID_SOCKET;
 		}
+		VOIP_CORE_INFO("Test");
 
 		m_Hints.sin_family = AF_INET;
 		m_Hints.sin_port = m_port;
 		inet_pton(AF_INET, m_host.c_str(), &m_Hints.sin_addr);
 
-		int32 Result = bind(serverSocket, (sockaddr*)&m_Hints, sizeof(m_Hints));
+		int32 Result = bind(serverSocket, (sockaddr*)& m_Hints, sizeof(m_Hints));
 		if (Result == SOCKET_ERROR)
 		{
 			VOIP_CORE_ERROR("Unable to bind address/port ({0}:{1}). Error: {3}", m_host, m_port, WSAGetLastError());
@@ -156,12 +153,11 @@ namespace VOIP {
 
 		if (m_ListenSocket == INVALID_SOCKET)
 		{
-			VOIP_CORE_ERROR("Socket is invalid.");
+			VOIP_CORE_ERROR("Socket is invalid. Error: {0}", WSAGetLastError());
 			return;
 		}
 
 		FD_SET(m_ListenSocket, &master);
-
 
 		m_bIsRunThreadRunning = true;
 
@@ -199,9 +195,9 @@ namespace VOIP {
 					}
 					else
 					{
-						if (m_MessageReceivedEvent != NULL)
+						if (m_ClientMessageReceivedEvent != NULL)
 						{
-							m_MessageReceivedServerEvent(this, socket, std::string(buf, 0, ReceivedBytes));
+							m_ServerMessageReceivedEvent(this, socket, std::string(buf, 0, ReceivedBytes));
 						}
 					}
 				}
@@ -243,16 +239,6 @@ namespace VOIP {
 
 		VOIP_CLIENT_INFO("UDP: Unbinded");
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTED;
-	}
-
-	void WindowsServerUDPNetwork::ListenReceiveThread(MessageReceivedHandler handler)
-	{
-
-	}
-
-	bool WindowsServerUDPNetwork::Receive(MessageReceivedHandler handler)
-	{
-		return false;
 	}
 
 	bool WindowsServerUDPNetwork::Init()
