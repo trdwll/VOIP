@@ -11,10 +11,12 @@ namespace VOIP {
 		LinuxServerTCPNetwork();
 		virtual ~LinuxServerTCPNetwork();
 
-		void Connect() override;
+		bool Connect() override;
 		void Disconnect() override;
-		void SendChatMessage(char* Message) override;
+		void SendChatMessage(const std::string& Message) override;
 
+	private:
+		bool Init() override;
 	};
 
 	/** Use UDP for voice */
@@ -25,8 +27,10 @@ namespace VOIP {
 		LinuxServerUDPNetwork();
 		virtual ~LinuxServerUDPNetwork();
 
-		void Connect() override;
+		bool Connect() override;
 		void Disconnect() override;
 
+	private:
+		bool Init() override;
 	};
 }

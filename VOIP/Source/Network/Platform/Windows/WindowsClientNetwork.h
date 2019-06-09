@@ -11,6 +11,8 @@
 
 namespace VOIP {
 
+	typedef void(*MessageReceivedHandler)(std::string message);
+
 	/** Use TCP for text */
 	class WindowsClientTCPNetwork : public ClientTCPNetwork
 	{
@@ -19,23 +21,40 @@ namespace VOIP {
 		WindowsClientTCPNetwork();
 		virtual ~WindowsClientTCPNetwork();
 
-		void Connect() override;
+		bool Connect() override;
 		void Disconnect() override;
 
-		void SendChatMessage(char* Message) override;
+		void SendChatMessage(const std::string& Message) override;
 
 	private:
+		/** Variables */
 
-		WSADATA m_wsaData;
-		SOCKET m_ConnectSocket = INVALID_SOCKET;
-		struct addrinfo* m_result = NULL;
-		struct addrinfo* m_ptr = NULL;
-		struct addrinfo m_hints;
-		
-		char m_recvBuffer[512];
+		SOCKET m_Socket;
+		sockaddr_in m_Hints;
+		bool m_bIsReceiveThreadRunning;
+		std::thread m_ReceiveThread;
 
-		int32 m_Result;
-		int32 m_recvBufferLength = 512;
+		MessageReceivedHandler MessageReceivedEvent;
+
+	private:
+		/** Methods */
+
+		/** Initialize WSAStartup */
+		bool Init() override;
+
+		/** Create the socket for the client to send and receive. */
+		SOCKET CreateSocket();
+
+		/** The method for m_ReceiveThread */
+		void ReceiveThread();
+
+	public:
+		/** Create the receive thread */
+		void ListenReceiveThread(MessageReceivedHandler handler);
+
+		/** Receive the content from the thread */
+		bool Receive(MessageReceivedHandler handler);
+
 	};
 
 	/** Use UDP for voice */
@@ -46,7 +65,10 @@ namespace VOIP {
 		WindowsClientUDPNetwork();
 		virtual ~WindowsClientUDPNetwork();
 
-		void Connect() override;
+		bool Connect() override;
 		void Disconnect() override;
+
+	private:
+		bool Init() override;
 	};
 }

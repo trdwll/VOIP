@@ -19,22 +19,12 @@ namespace VOIP {
 		WindowsServerTCPNetwork();
 		virtual ~WindowsServerTCPNetwork();
 
-		void Connect() override;
+		bool Connect() override;
 		void Disconnect() override;
-		void SendChatMessage(char* Message) override;
+		void SendChatMessage(const std::string& Message) override;
 
-		WSADATA m_wsaData;
-		int32 m_Result;
-
-		SOCKET m_ListenSocket = INVALID_SOCKET;
-		SOCKET m_ClientSocket = INVALID_SOCKET;
-
-		struct addrinfo* m_result = NULL;
-		struct addrinfo m_hints;
-
-		int32 m_SendResult;
-		char m_recvBuffer[512];
-		int32 m_recvBufferLength = 512;
+	private:
+		bool Init() override;
 
 	};
 
@@ -46,8 +36,10 @@ namespace VOIP {
 		WindowsServerUDPNetwork();
 		virtual ~WindowsServerUDPNetwork();
 
-		void Connect() override;
+		bool Connect() override;
 		void Disconnect() override;
 
+	private:
+		bool Init() override;
 	};
 }

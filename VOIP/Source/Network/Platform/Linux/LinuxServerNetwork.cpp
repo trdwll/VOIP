@@ -18,13 +18,15 @@ namespace VOIP {
 
 	}
 
-	void LinuxServerTCPNetwork::Connect()
+	bool LinuxServerTCPNetwork::Connect()
 	{
 		VOIP_CLIENT_INFO("TCP: Binding to {0}:{1}", m_host, m_port);
 		m_ConnectionStatus = EConnectionStatus::CS_CONNECTING;
 
 		VOIP_CLIENT_INFO("UDP: Binded");
 		m_ConnectionStatus = EConnectionStatus::CS_CONNECTED;
+
+		return true;
 	}
 
 	void LinuxServerTCPNetwork::Disconnect()
@@ -37,9 +39,14 @@ namespace VOIP {
 	}
 
 
-	void LinuxServerTCPNetwork::SendChatMessage(char* Message)
+	void LinuxServerTCPNetwork::SendChatMessage(const std::string& Message)
 	{
 
+	}
+
+	bool LinuxServerTCPNetwork::Init()
+	{
+		return false;
 	}
 
 	/************************************************************************/
@@ -56,13 +63,15 @@ namespace VOIP {
 
 	}
 
-	void LinuxServerUDPNetwork::Connect()
+	bool LinuxServerUDPNetwork::Connect()
 	{
 		VOIP_CLIENT_INFO("UDP: Binding to {0}:{1}", m_host, m_port);
 		m_ConnectionStatus = EConnectionStatus::CS_CONNECTING;
 
 		VOIP_CLIENT_INFO("UDP: Binded");
 		m_ConnectionStatus = EConnectionStatus::CS_CONNECTED;
+
+		return true;
 	}
 
 	void LinuxServerUDPNetwork::Disconnect()
@@ -72,6 +81,11 @@ namespace VOIP {
 
 		VOIP_CLIENT_INFO("UDP: Unbinded");
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTED;
+	}
+
+	bool LinuxServerUDPNetwork::Init()
+	{
+		return false;
 	}
 
 }

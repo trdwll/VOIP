@@ -17,7 +17,10 @@ int main()
 	client_tcp_connection->SetHost("localhost");
 	client_tcp_connection->SetPort(10006);
 
-	client_tcp_connection->Connect();
+	if (client_tcp_connection->Connect())
+	{
+		// do magic
+	}
 
 	std::cin.ignore(); // basically a pause or wait (press enter to continue)
 	//std::cout << "Type: ";

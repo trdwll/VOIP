@@ -45,8 +45,11 @@ namespace VOIP {
 	public:
 		/** Virtual Methods */
 
-		virtual void Connect() = 0;
+		virtual bool Connect() = 0;
 		virtual void Disconnect() = 0;
+
+	private:
+		virtual bool Init() = 0;
 
 	protected:
 		/** Variables */
@@ -62,7 +65,7 @@ namespace VOIP {
 	{
 	public:
 
-		virtual void SendChatMessage(char* Message) = 0;
+		virtual void SendChatMessage(const std::string& Message) = 0;
 	};
 
 	// Whatever's defined here can be accessible via server or client so beware

@@ -15,10 +15,10 @@ namespace VOIP {
 
 	WindowsClientTCPNetwork::~WindowsClientTCPNetwork()
 	{
-
+		Disconnect();
 	}
 
-	void WindowsClientTCPNetwork::Connect()
+	bool WindowsClientTCPNetwork::Connect()
 	{
 		VOIP_CLIENT_INFO("WINDOWS:TCP: Connecting to {0}:{1}", m_host, m_port);
 		m_ConnectionStatus = EConnectionStatus::CS_CONNECTING;
@@ -27,109 +27,33 @@ namespace VOIP {
 		{
 			VOIP_CORE_ERROR("Host or port haven't been set.");
 			m_ConnectionStatus = EConnectionStatus::CS_CONNECTERROR;
-			return;
+			return false;
 		}
 
-		m_Result = WSAStartup(MAKEWORD(2, 2), &m_wsaData);
-		if (m_Result != 0)
+		if (!Init()) return false;
+
+		// Create the socket for the client
+		m_Socket = CreateSocket();
+		if (m_Socket == INVALID_SOCKET)
 		{
-			VOIP_CORE_ERROR("WSAStartup failed. Error: {0}", m_Result);
+			VOIP_CORE_ERROR("The socket was unable to be created.");
 			m_ConnectionStatus = EConnectionStatus::CS_CONNECTERROR;
-			return;
+			return false;
 		}
 
-		ZeroMemory(&m_hints, sizeof(m_hints));
-		m_hints.ai_family = AF_UNSPEC;
-		m_hints.ai_socktype = SOCK_STREAM;
-		m_hints.ai_protocol = IPPROTO_TCP;
-
-		m_Result = getaddrinfo(m_host.c_str(), std::to_string(m_port).c_str(), &m_hints, &m_result);
-		if (m_Result != 0)
+		// Connect to the host
+		int32 Result = connect(m_Socket, (sockaddr*)&m_Hints, sizeof(m_Hints));
+		if (Result == SOCKET_ERROR)
 		{
-			VOIP_CORE_ERROR("getaddrinfo failed. Error: {0}", m_Result);
+			VOIP_CORE_ERROR("Unable to connect to the host.");
 			m_ConnectionStatus = EConnectionStatus::CS_CONNECTERROR;
-			WSACleanup();
-			return;
+			return false;
 		}
 
-		for (m_ptr = m_result; m_ptr != NULL; m_ptr = m_ptr->ai_next)
-		{
-			m_ConnectSocket = socket(m_ptr->ai_family, m_ptr->ai_socktype, m_ptr->ai_protocol);
-			if (m_ConnectSocket == INVALID_SOCKET)
-			{
-				VOIP_CORE_ERROR("socket failed. Error: {0}", WSAGetLastError());
-				m_ConnectionStatus = EConnectionStatus::CS_CONNECTERROR;
-				WSACleanup();
-				return;
-			}
 
-			m_Result = connect(m_ConnectSocket, m_ptr->ai_addr, (int32)m_ptr->ai_addrlen);
-			if (m_Result == SOCKET_ERROR)
-			{
-				closesocket(m_ConnectSocket);
-				m_ConnectSocket = INVALID_SOCKET;
-				continue;
-			}
-
-			VOIP_CORE_INFO("Connected to the server");
-			break;
-		}
-
-		freeaddrinfo(m_result);
-
-		if (m_ConnectSocket == INVALID_SOCKET)
-		{
-			VOIP_CORE_ERROR("Unable to connect to the server.");
-			m_ConnectionStatus = EConnectionStatus::CS_CONNECTERROR;
-			WSACleanup();
-			return;
-		}
-
-		char buf[4096];
-		std::string userInput;
-
-		while (true)
-		{
-			std::cout << "USERNAME:" << "> ";
-			getline(std::cin, userInput);
-
-			int sendResult = send(m_ConnectSocket, userInput.c_str(), userInput.size() + 1, 0);
-			if (sendResult != SOCKET_ERROR)
-			{
-				// Wait for response
-				ZeroMemory(buf, 4096);
-				int bytesReceived = recv(m_ConnectSocket, buf, 4096, 0);
-				if (bytesReceived > 0)
-				{
-					// Echo response to console
-					std::cout << "SERVER> " << std::string(buf, 0, bytesReceived) << std::endl;
-				}
-			}
-		}
-		
-		/*do {
-			m_Result = recv(m_ConnectSocket, m_recvBuffer, m_recvBufferLength, 0);
-			if (m_Result > 0)
-			{
-				VOIP_CLIENT_INFO("TCP: Connected");
-				m_ConnectionStatus = EConnectionStatus::CS_CONNECTED;
-
-				VOIP_CORE_INFO("Bytes Received: {0}", m_Result);
-			}
-			else if (m_result == 0)
-			{
-				VOIP_CORE_INFO("Connection Closed");
-			}
-			else
-			{
-				VOIP_CORE_ERROR("recv failed. Error: {0}", WSAGetLastError());
-				m_ConnectionStatus = EConnectionStatus::CS_CONNECTERROR;
-			}
-
-		} while (m_Result > 0);*/
-
-
-		Disconnect();
+		VOIP_CLIENT_INFO("WINDOWS:TCP: Connected to {0}:{1}", m_host, m_port);
+		m_ConnectionStatus = EConnectionStatus::CS_CONNECTED;
+		return true;
 	}
 
 	void WindowsClientTCPNetwork::Disconnect()
@@ -137,39 +61,120 @@ namespace VOIP {
 		VOIP_CLIENT_INFO("WINDOWS:TCP: Disconnecting from {0}:{1}", m_host, m_port);
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTING;
 
-		m_Result = shutdown(m_ConnectSocket, SD_SEND);
-		if (m_Result == SOCKET_ERROR)
-		{
-			VOIP_CORE_ERROR("Shutdown failed. Error: {0}", WSAGetLastError());
-			m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTERROR;
-			closesocket(m_ConnectSocket);
-			WSACleanup();
-			return;
-		}
-
-		closesocket(m_ConnectSocket);
+		closesocket(m_Socket);
 		WSACleanup();
+
+		if (m_bIsReceiveThreadRunning)
+		{
+			m_bIsReceiveThreadRunning = false;
+			m_ReceiveThread.join();
+		}
 
 		VOIP_CLIENT_INFO("WINDOWS:TCP: Disconnected");
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTED;
 	}
 
-	void WindowsClientTCPNetwork::SendChatMessage(char* Message)
+	bool WindowsClientTCPNetwork::Init()
 	{
-		//if (m_ConnectionStatus == EConnectionStatus::CS_CONNECTED)
+		WSADATA wsaData;
+		
+		uint32 Result = WSAStartup(MAKEWORD(2, 2), &wsaData);
+		if (Result != 0)
 		{
-			if (m_ConnectSocket != INVALID_SOCKET)
-			{
-				m_Result = send(m_ConnectSocket, Message, (int32)strlen(Message), 0);
-				if (m_Result == SOCKET_ERROR)
-				{
-					VOIP_CORE_ERROR("Unable to send a message. Error: {0}", WSAGetLastError());
-					m_ConnectionStatus = EConnectionStatus::CS_CONNECTERROR;
-					WSACleanup();
-					return;
-				}
+			VOIP_CORE_ERROR("WSAStartup failed. Error: {0}", Result);
+			m_ConnectionStatus = EConnectionStatus::CS_CONNECTERROR;
+			return false;
+		}
 
-				VOIP_CORE_INFO("Bytes sent: {0}", m_Result);
+		return Result == 0;
+	}
+
+	SOCKET WindowsClientTCPNetwork::CreateSocket()
+	{
+		SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+		if (clientSocket == INVALID_SOCKET)
+		{
+			VOIP_CORE_ERROR("CreateSocket() failed. Error: {0}", WSAGetLastError());
+			m_ConnectionStatus = EConnectionStatus::CS_CONNECTERROR;
+			WSACleanup();
+			return clientSocket;
+		}
+
+		m_Hints.sin_family = AF_INET;
+		m_Hints.sin_port = m_port;
+		inet_pton(AF_INET, m_host.c_str(), &m_Hints.sin_addr);
+
+		return clientSocket;
+	}
+
+	void WindowsClientTCPNetwork::ReceiveThread()
+	{
+		m_bIsReceiveThreadRunning = true;
+		while (m_bIsReceiveThreadRunning)
+		{
+			char buf[4096];
+			ZeroMemory(buf, 4096);
+
+			uint32 BytesReceived = recv(m_Socket, buf, 4096, 0);
+			if (BytesReceived > 0)
+			{
+				if (MessageReceivedEvent != NULL)
+				{
+					MessageReceivedEvent(std::string(buf, 0, BytesReceived));
+				}
+			}
+		}
+	}
+
+	void WindowsClientTCPNetwork::ListenReceiveThread(MessageReceivedHandler handler)
+	{
+		MessageReceivedEvent = handler;
+
+		this->m_ReceiveThread = std::thread([&]() 
+		{
+			ReceiveThread();
+		});
+	}
+
+	bool WindowsClientTCPNetwork::Receive(MessageReceivedHandler handler)
+	{
+		MessageReceivedEvent = handler;
+
+		if (m_Socket == INVALID_SOCKET)
+		{
+			return false;
+		}
+
+		char buf[4096];
+
+		int32 BytesReceived = recv(m_Socket, buf, 4096, 0);
+		if (BytesReceived > 0)
+		{
+			if (MessageReceivedEvent != NULL)
+			{
+				MessageReceivedEvent(std::string(buf, 0, BytesReceived));
+			}
+		}
+	}
+
+	void WindowsClientTCPNetwork::SendChatMessage(const std::string& Message)
+	{
+		if (m_ConnectionStatus == EConnectionStatus::CS_CONNECTED)
+		{
+			if (m_Socket == INVALID_SOCKET)
+			{
+				if (!Message.empty())
+				{
+					send(m_Socket, Message.c_str(), Message.size() + 1, 0);
+				}
+				else
+				{
+					VOIP_CORE_WARN("Message is empty");
+				}
+			}
+			else
+			{
+				VOIP_CORE_ERROR("Socket is invalid");
 			}
 		}
 	}
@@ -189,13 +194,15 @@ namespace VOIP {
 
 	}
 
-	void WindowsClientUDPNetwork::Connect()
+	bool WindowsClientUDPNetwork::Connect()
 	{
 		VOIP_CLIENT_INFO("WINDOWS:UDP: Connecting to {0}:{1}", m_host, m_port);
 		m_ConnectionStatus = EConnectionStatus::CS_CONNECTING;
 
 		VOIP_CLIENT_INFO("WINDOWS:UDP: Connected");
 		m_ConnectionStatus = EConnectionStatus::CS_CONNECTED;
+
+		return true;
 	}
 
 	void WindowsClientUDPNetwork::Disconnect()
@@ -205,6 +212,11 @@ namespace VOIP {
 
 		VOIP_CLIENT_INFO("WINDOWS:UDP: Disconnected");
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTED;
+	}
+
+	bool WindowsClientUDPNetwork::Init()
+	{
+		return false;
 	}
 
 }
