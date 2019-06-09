@@ -20,7 +20,7 @@ namespace VOIP {
 
 	void LinuxClientTCPNetwork::Connect()
 	{
-		VOIP_CLIENT_INFO("TCP: Connecting to {0}:{1}", m_host, m_port);
+		VOIP_CLIENT_INFO("LINUX:TCP: Connecting to {0}:{1}", m_host, m_port);
 		m_ConnectionStatus = EConnectionStatus::CS_CONNECTING;
 
 		if (m_host.empty() || m_port == 0)
@@ -36,10 +36,10 @@ namespace VOIP {
 
 	void LinuxClientTCPNetwork::Disconnect()
 	{
-		VOIP_CLIENT_INFO("TCP: Disconnecting from {0}:{1}", m_host, m_port);
+		VOIP_CLIENT_INFO("LINUX:TCP: Disconnecting from {0}:{1}", m_host, m_port);
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTING;
 
-		VOIP_CLIENT_INFO("TCP: Disconnected");
+		VOIP_CLIENT_INFO("LINUX:TCP: Disconnected");
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTED;
 	}
 
@@ -51,10 +51,6 @@ namespace VOIP {
 		}
 	}
 
-	void LinuxClientTCPNetwork::SetClientUsername(std::string Username)
-	{
-		m_ClientUsername = Username;
-	}
 
 	/************************************************************************/
 	/* UDP Networking                                                       */
@@ -72,19 +68,19 @@ namespace VOIP {
 
 	void LinuxClientUDPNetwork::Connect()
 	{
-		VOIP_CLIENT_INFO("UDP: Connecting to {0}:{1}", m_host, m_port);
+		VOIP_CLIENT_INFO("LINUX:UDP: Connecting to {0}:{1}", m_host, m_port);
 		m_ConnectionStatus = EConnectionStatus::CS_CONNECTING;
 
-		VOIP_CLIENT_INFO("UDP: Connected");
+		VOIP_CLIENT_INFO("LINUX:UDP: Connected");
 		m_ConnectionStatus = EConnectionStatus::CS_CONNECTED;
 	}
 
 	void LinuxClientUDPNetwork::Disconnect()
 	{
-		VOIP_CLIENT_INFO("UDP: Disconnecting from {0}:{1}", m_host, m_port);
+		VOIP_CLIENT_INFO("LINUX:UDP: Disconnecting from {0}:{1}", m_host, m_port);
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTING;
 
-		VOIP_CLIENT_INFO("UDP: Disconnected");
+		VOIP_CLIENT_INFO("LINUX:UDP: Disconnected");
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTED;
 	}
 

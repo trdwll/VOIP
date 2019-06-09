@@ -20,7 +20,7 @@ namespace VOIP {
 
 	void WindowsClientTCPNetwork::Connect()
 	{
-		VOIP_CLIENT_INFO("TCP: Connecting to {0}:{1}", m_host, m_port);
+		VOIP_CLIENT_INFO("WINDOWS:TCP: Connecting to {0}:{1}", m_host, m_port);
 		m_ConnectionStatus = EConnectionStatus::CS_CONNECTING;
 
 		if (m_host.empty() || m_port == 0)
@@ -90,7 +90,7 @@ namespace VOIP {
 
 		while (true)
 		{
-			std::cout << GetClientUsername() << "> ";
+			std::cout << "USERNAME:" << "> ";
 			getline(std::cin, userInput);
 
 			int sendResult = send(m_ConnectSocket, userInput.c_str(), userInput.size() + 1, 0);
@@ -134,7 +134,7 @@ namespace VOIP {
 
 	void WindowsClientTCPNetwork::Disconnect()
 	{
-		VOIP_CLIENT_INFO("TCP: Disconnecting from {0}:{1}", m_host, m_port);
+		VOIP_CLIENT_INFO("WINDOWS:TCP: Disconnecting from {0}:{1}", m_host, m_port);
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTING;
 
 		m_Result = shutdown(m_ConnectSocket, SD_SEND);
@@ -150,7 +150,7 @@ namespace VOIP {
 		closesocket(m_ConnectSocket);
 		WSACleanup();
 
-		VOIP_CLIENT_INFO("TCP: Disconnected");
+		VOIP_CLIENT_INFO("WINDOWS:TCP: Disconnected");
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTED;
 	}
 
@@ -174,10 +174,6 @@ namespace VOIP {
 		}
 	}
 
-	void WindowsClientTCPNetwork::SetClientUsername(std::string Username)
-	{
-		m_ClientUsername = Username;
-	}
 
 	/************************************************************************/
 	/* UDP Networking                                                       */
@@ -195,19 +191,19 @@ namespace VOIP {
 
 	void WindowsClientUDPNetwork::Connect()
 	{
-		VOIP_CLIENT_INFO("UDP: Connecting to {0}:{1}", m_host, m_port);
+		VOIP_CLIENT_INFO("WINDOWS:UDP: Connecting to {0}:{1}", m_host, m_port);
 		m_ConnectionStatus = EConnectionStatus::CS_CONNECTING;
 
-		VOIP_CLIENT_INFO("UDP: Connected");
+		VOIP_CLIENT_INFO("WINDOWS:UDP: Connected");
 		m_ConnectionStatus = EConnectionStatus::CS_CONNECTED;
 	}
 
 	void WindowsClientUDPNetwork::Disconnect()
 	{
-		VOIP_CLIENT_INFO("UDP: Disconnecting from {0}:{1}", m_host, m_port);
+		VOIP_CLIENT_INFO("WINDOWS:UDP: Disconnecting from {0}:{1}", m_host, m_port);
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTING;
 
-		VOIP_CLIENT_INFO("UDP: Disconnected");
+		VOIP_CLIENT_INFO("WINDOWS:UDP: Disconnected");
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTED;
 	}
 

@@ -1,10 +1,6 @@
 
-#ifdef VOIP_PLATFORM_WINDOWS
-// #include <Network/Platform/Windows/WindowsClientNetwork.h>
-#endif
 
 #include <Network/ClientNetwork.h>
-// #include <Network/Network.h>
 
 #include <memory.h>
 #include <string.h>
@@ -13,7 +9,7 @@ int main()
 {
 	VOIP::Logger::Init();
 
-	std::shared_ptr<VOIP::ClientTCPNetwork> client_tcp_connection(VOIP::Network::CreateClientTCPNetwork());
+	std::shared_ptr<VOIP::ClientTCPNetwork> client_tcp_connection(VOIP::TCPNetwork::CreateClientTCPNetwork());
 
 	// std::shared_ptr<VOIP::ClientTCPNetwork> client_tcp_connection = std::make_shared<VOIP::ClientTCPNetwork>();
 	// client_tcp_connection->SetClientUsername("TestUsername");

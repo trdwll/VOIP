@@ -19,21 +19,15 @@ namespace VOIP {
 	class Network
 	{
 	public:
+		Network();
+		Network(const std::string& host, uint16 port);
+		virtual ~Network();
 
 		static class ServerTCPNetwork* CreateServerTCPNetwork();
 		static class ServerUDPNetwork* CreateServerUDPNetwork();
 
 		static class ClientTCPNetwork* CreateClientTCPNetwork();
 		static class ClientUDPNetwork* CreateClientUDPNetwork();
-	};
-
-	/** Use TCP for text */
-	class TCPNetwork
-	{
-	public:
-		TCPNetwork();
-		TCPNetwork(const std::string& host, uint16 port);
-		virtual ~TCPNetwork();
 
 	public:
 		/** Getters and Setters */
@@ -51,7 +45,6 @@ namespace VOIP {
 	public:
 		/** Virtual Methods */
 
-		virtual void SendChatMessage(char* Message) = 0;
 		virtual void Connect() = 0;
 		virtual void Disconnect() = 0;
 
@@ -64,37 +57,15 @@ namespace VOIP {
 		EConnectionStatus m_ConnectionStatus;
 	};
 
-	/** Use UDP for voice */
-	class UDPNetwork
+	// Whatever's defined here can be accessible via server or client so beware
+	class TCPNetwork : public Network 
 	{
 	public:
-		UDPNetwork();
-		UDPNetwork(const std::string& host, uint16 port);
-		virtual ~UDPNetwork();
 
-	public:
-		/** Getters and Setters */
-
-		std::string GetHost() const { return m_host; }
-		uint16 GetPort() const { return m_port; }
-		EConnectionStatus GetConnectionStatus() const { return m_ConnectionStatus; }
-		std::string GetIdentifier() const { return m_host + ":" + std::to_string(m_port); }
-
-		void SetHost(const std::string& host);
-		void SetPort(uint16 port);
-
-	public:
-		/** Virtual Methods */
-		virtual void Connect() = 0;
-		virtual void Disconnect() = 0;
-
-	protected:
-		/** Variables */
-
-		std::string m_host;
-		uint16 m_port;
-
-		EConnectionStatus m_ConnectionStatus;
+		virtual void SendChatMessage(char* Message) = 0;
 	};
+
+	// Whatever's defined here can be accessible via server or client so beware
+	class UDPNetwork : public Network {};
 }
 

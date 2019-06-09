@@ -16,12 +16,7 @@ namespace VOIP {
 
 		void SendChatMessage(char* Message) override;
 
-		void SetClientUsername(std::string Username);
-		std::string GetClientUsername() const { return m_ClientUsername; }
-
 	private:
-
-		std::string m_ClientUsername;
 	};
 
 	/** Use UDP for voice */
