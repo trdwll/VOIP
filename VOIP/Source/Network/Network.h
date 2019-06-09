@@ -1,19 +1,9 @@
 #pragma once
 #include "voippch.h"
 
-#if VOIP_PLATFORM_WINDOWS
-// TODO: Move this stuff into the source file if we can (forward decl)
-
-#define WIN32_LEAN_AND_MEAN
-
-#include <windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <stdlib.h>
-#include <stdio.h>
-
-#endif
-
+/**
+ * Abstract class that all Networking classes should be derived from
+ */
 namespace VOIP {
 
 	enum class EConnectionStatus
@@ -26,6 +16,17 @@ namespace VOIP {
 		CS_DISCONNECTERROR,
 	};
 
+	class Network
+	{
+	public:
+
+		static class ServerTCPNetwork* CreateServerTCPNetwork();
+		static class ServerUDPNetwork* CreateServerUDPNetwork();
+
+		static class ClientTCPNetwork* CreateClientTCPNetwork();
+		static class ClientUDPNetwork* CreateClientUDPNetwork();
+	};
+
 	/** Use TCP for text */
 	class TCPNetwork
 	{
@@ -34,42 +35,33 @@ namespace VOIP {
 		TCPNetwork(const std::string& host, uint16 port);
 		virtual ~TCPNetwork();
 
+	public:
+		/** Getters and Setters */
+		
 		std::string GetHost() const { return m_host; }
 		uint16 GetPort() const { return m_port; }
 
-#if VOIP_PLATFORM_WINDOWS
-
-		struct sockaddr_in GetHostAsSockAddr() const;
-
-#endif
+		EConnectionStatus GetConnectionStatus() const { return m_ConnectionStatus; }
 
 		void SetHost(const std::string& host);
 		void SetPort(uint16 port);
 
 		std::string GetIdentifier() const { return m_host + ":" + std::to_string(m_port); }
+	
+	public:
+		/** Virtual Methods */
 
-		// Maybe send a string&?
 		virtual void SendChatMessage(char* Message) = 0;
-
-
-		// TODO: Another implementation that can disconnect us from a current server before connecting to another
 		virtual void Connect() = 0;
-
-		// TODO: Another implementation that takes in an ip:port as the identifier for the server and disconnects specifically from it if we're connected
 		virtual void Disconnect() = 0;
 
 	protected:
+		/** Variables */
 
 		std::string m_host;
 		uint16 m_port;
 
 		EConnectionStatus m_ConnectionStatus;
-
-#if VOIP_PLATFORM_WINDOWS
-
-		struct sockaddr_in m_hostsocket;
-
-#endif
 	};
 
 	/** Use UDP for voice */
@@ -80,21 +72,24 @@ namespace VOIP {
 		UDPNetwork(const std::string& host, uint16 port);
 		virtual ~UDPNetwork();
 
+	public:
+		/** Getters and Setters */
+
 		std::string GetHost() const { return m_host; }
 		uint16 GetPort() const { return m_port; }
+		EConnectionStatus GetConnectionStatus() const { return m_ConnectionStatus; }
+		std::string GetIdentifier() const { return m_host + ":" + std::to_string(m_port); }
 
 		void SetHost(const std::string& host);
 		void SetPort(uint16 port);
 
-		std::string GetIdentifier() const { return m_host + ":" + std::to_string(m_port); }
-
-		// TODO: Another implementation that can disconnect us from a current server before connecting to another
+	public:
+		/** Virtual Methods */
 		virtual void Connect() = 0;
-
-		// TODO: Another implementation that takes in an ip:port as the identifier for the server and disconnects specifically from it if we're connected
 		virtual void Disconnect() = 0;
 
 	protected:
+		/** Variables */
 
 		std::string m_host;
 		uint16 m_port;

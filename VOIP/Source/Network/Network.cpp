@@ -1,6 +1,9 @@
 #include "voippch.h"
 #include "Network/Network.h"
 
+#include "Network/ClientNetwork.h"
+#include "Network/ServerNetwork.h"
+
 namespace VOIP {
 
 	/************************************************************************/
@@ -24,26 +27,6 @@ namespace VOIP {
 
 	}
 
-#if VOIP_PLATFORM_WINDOWS
-
-	//struct sockaddr_in TCPNetwork::GetHostAsSockAddr() const
-	//{
-	//	char len[INET_ADDRSTRLEN];
-
-	//	inet_pton(AF_INET, m_host.c_str(), len);
-
-	//	inet_ntop(AF_INET, &(m_hostsocket.sin_addr), len, INET_ADDRSTRLEN);
-
-	//	return m_hostsocket;
-	//	/*in_addr host;
-
-	//	inet_pton(AF_INET, m_host.c_str(), &host);
-
-	//	return ((sockaddr_in)m_hostsocket);*/
-	//}
-
-#endif
-
 	void TCPNetwork::SetHost(const std::string& host)
 	{
 		m_host = host;
@@ -51,7 +34,10 @@ namespace VOIP {
 
 	void TCPNetwork::SetPort(uint16 port)
 	{
-		if (port > 25565 || port == 0) return;
+		if (port > 25565 || port == 0)
+		{
+			m_port = 10005;
+		}
 
 		m_port = port;
 	}
@@ -84,8 +70,38 @@ namespace VOIP {
 
 	void UDPNetwork::SetPort(uint16 port)
 	{
+		if (port > 25565 || port == 0)
+		{
+			m_port = 10005;
+		}
+
 		m_port = port;
 	}
+
+	/************************************************************************/
+	/* Networking                                                           */
+	/************************************************************************/
+
+	ServerTCPNetwork* Network::CreateServerTCPNetwork()
+	{
+		return nullptr;
+	}
+
+	ServerUDPNetwork* Network::CreateServerUDPNetwork()
+	{
+		return nullptr;
+	}
+
+	ClientTCPNetwork* Network::CreateClientTCPNetwork()
+	{
+		return nullptr;
+	}
+
+	ClientUDPNetwork* Network::CreateClientUDPNetwork()
+	{
+		return nullptr;
+	}
+
 
 }
 
