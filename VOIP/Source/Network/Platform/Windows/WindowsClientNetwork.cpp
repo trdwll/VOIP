@@ -64,6 +64,8 @@ namespace VOIP {
 		VOIP_CLIENT_INFO("WINDOWS:TCP: Disconnecting from {0}:{1}", m_host, m_port);
 		m_ConnectionStatus = EConnectionStatus::CS_DISCONNECTING;
 
+		// SendChatMessage("'USERNAME' has disconnected");
+
 		closesocket(m_Socket);
 		WSACleanup();
 
@@ -125,6 +127,8 @@ namespace VOIP {
 				{
 					m_ClientMessageReceivedEvent(std::string(buf, 0, BytesReceived));
 				}
+
+				std::cout << "SERVER> " << std::string(buf, 0, BytesReceived) << std::endl;
 			}
 		}
 	}
@@ -166,7 +170,7 @@ namespace VOIP {
 	{
 		if (m_ConnectionStatus == EConnectionStatus::CS_CONNECTED)
 		{
-			if (m_Socket == INVALID_SOCKET)
+			if (m_Socket != INVALID_SOCKET)
 			{
 				if (!Message.empty())
 				{
@@ -179,7 +183,7 @@ namespace VOIP {
 			}
 			else
 			{
-				VOIP_CORE_ERROR("Socket is invalid");
+				VOIP_CORE_ERROR("Socket is invalid. Error: {0}", WSAGetLastError());
 			}
 		}
 	}

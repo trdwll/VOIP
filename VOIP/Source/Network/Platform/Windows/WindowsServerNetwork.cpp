@@ -25,6 +25,7 @@ namespace VOIP {
 
 		if (!Init())
 		{
+			VOIP_CORE_ERROR("Init failed!");
 			return false;
 		}
 
@@ -72,7 +73,7 @@ namespace VOIP {
 	{
 		if (!Message.empty())
 		{
-			for (int32 i = 0; i < master.fd_count; i++)
+			for (uint32 i = 0; i < master.fd_count; i++)
 			{
 				SOCKET client = master.fd_array[i];
 				if ((client != m_ListenSocket) && (client != NULL))
@@ -89,6 +90,11 @@ namespace VOIP {
 		{
 			send(ClientSocket, Message.c_str(), Message.size() + 1, 0);
 		}
+	}
+
+	void WindowsServerTCPNetwork::SetCallback(ServerMessageReceivedHandler handler)
+	{
+		m_ServerMessageReceivedEvent = handler;
 	}
 
 	bool WindowsServerTCPNetwork::Init()
@@ -114,43 +120,12 @@ namespace VOIP {
 			WSACleanup();
 			return INVALID_SOCKET;
 		}
-		VOIP_CORE_INFO("Test");
 
 		m_Hints.sin_family = AF_INET;
 		m_Hints.sin_port = m_port;
 		inet_pton(AF_INET, m_host.c_str(), &m_Hints.sin_addr);
 
-
-		// This code kinda fixes the server
-		//struct addrinfo* result = NULL;
-		//struct addrinfo hints;
-
-		//ZeroMemory(&hints, sizeof(hints));
-		//hints.ai_family = AF_INET;
-		//hints.ai_socktype = SOCK_STREAM;
-		//hints.ai_protocol = IPPROTO_TCP;
-		//hints.ai_flags = AI_PASSIVE;
-
-		//int32 iResult;
-
-		//// Resolve the server address and port
-		//iResult = getaddrinfo(NULL, std::to_string(m_port).c_str(), &hints, &result);
-		//if (iResult != 0) {
-		//	VOIP_CORE_ERROR("getaddrinfo failed. Error: {0}", iResult);
-		//	WSACleanup();
-		//	return 1;
-		//}
-
-		//iResult = bind(serverSocket, result->ai_addr, (int)result->ai_addrlen);
-		//if (iResult == SOCKET_ERROR) {
-		//	VOIP_CORE_ERROR("Binding failed. Error: {0}", WSAGetLastError());
-		//	freeaddrinfo(result);
-		//	closesocket(serverSocket);
-		//	WSACleanup();
-		//	return 1;
-		//}
-
-
+		// Bind the socket to the address
 		int32 Result = bind(serverSocket, (sockaddr*)& m_Hints, sizeof(m_Hints));
 		if (Result == SOCKET_ERROR)
 		{
@@ -159,6 +134,7 @@ namespace VOIP {
 			return SOCKET_ERROR;
 		}
 
+		// Start listening with the socket
 		int32 Result2 = listen(serverSocket, SOMAXCONN);
 		if (Result2 == SOCKET_ERROR)
 		{
@@ -188,6 +164,8 @@ namespace VOIP {
 			return;
 		}
 
+		fd_set master;
+		FD_ZERO(&master);
 		FD_SET(m_ListenSocket, &master);
 
 		m_bIsRunThreadRunning = true;
@@ -197,7 +175,7 @@ namespace VOIP {
 		while (m_bIsRunThreadRunning)
 		{
 			fd_set copy = master;
-
+			
 			int32 SocketCount = select(0, &copy, nullptr, nullptr, nullptr);
 			for (int32 i = 0; i < SocketCount; i++)
 			{
@@ -207,6 +185,8 @@ namespace VOIP {
 				{
 					// TODO: set ipaddr
 					SOCKET client = accept(m_ListenSocket, nullptr, nullptr);
+
+					VOIP_CORE_INFO("'USERNAME<IPADDR>' connected");
 
 					FD_SET(client, &master);
 
@@ -218,15 +198,15 @@ namespace VOIP {
 					char buf[DEFAULT_BUFFER_SIZE];
 					ZeroMemory(buf, DEFAULT_BUFFER_SIZE);
 
-					int32 ReceivedBytes = recv(socket, buf, DEFAULT_BUFFER_SIZE, 0);
-					if (ReceivedBytes <= 0)
+					uint32 ReceivedBytes = recv(socket, buf, DEFAULT_BUFFER_SIZE, 0);
+					if (ReceivedBytes == 0) // <= 0 and should be int32?
 					{
 						closesocket(socket);
 						FD_CLR(socket, &master);
 					}
 					else
 					{
-						if (m_ClientMessageReceivedEvent != NULL)
+						if (m_ServerMessageReceivedEvent != NULL)
 						{
 							m_ServerMessageReceivedEvent(this, socket, std::string(buf, 0, ReceivedBytes));
 						}

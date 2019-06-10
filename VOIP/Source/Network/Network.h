@@ -10,14 +10,6 @@
  */
 namespace VOIP {
 
-	typedef void(*ClientMessageReceivedHandler)(std::string message);
-
-#ifdef VOIP_PLATFORM_WINDOWS
-	typedef void(*ServerMessageReceivedHandler)(class TCPNetwork* Listener, SOCKET socketID, std::string message);
-#elif VOIP_PLATFORM_LINUX
-	typedef void(*ServerMessageReceivedHandler)(class TCPNetwork* Listener, int32 socketID, std::string message);
-#endif
-
 	enum class EConnectionStatus
 	{
 		CS_CONNECTING,
@@ -74,30 +66,12 @@ namespace VOIP {
 
 		EConnectionStatus m_ConnectionStatus;
 
-		// this only needs to be on the client
-		ClientMessageReceivedHandler m_ClientMessageReceivedEvent;
-
-		// this only needs to be on the server 
-		ServerMessageReceivedHandler m_ServerMessageReceivedEvent;
 	};
 
 	// Whatever's defined here can be accessible via server or client so beware
-	class TCPNetwork : public Network 
-	{
-	public:
-
-#ifdef VOIP_PLATFORM_WINDOWS
-		/** Send a message to all clients. */
-		//virtual void SendChatMessage(const std::string& Message) = 0;
-
-		/** Send a message to a specific client. */
-		//virtual void SendChatMessage(const std::string& Message, SOCKET ClientSocket) = 0;
-#elif VOIP_PLATFORM_LINUX
-
-#endif 
-	};
+	class TCPNetwork : public Network { };
 
 	// Whatever's defined here can be accessible via server or client so beware
-	class UDPNetwork : public Network {};
+	class UDPNetwork : public Network { };
 }
 

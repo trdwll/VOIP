@@ -19,7 +19,7 @@ int main()
 	// SClientData* ClientData;
 	// client_tcp_connection->SetClientData(&ClientData);
 
-	client_tcp->SetHost("localhost");
+	client_tcp->SetHost("127.0.0.1");
 	client_tcp->SetPort(DEFAULT_PORT);
 
 	if (client_tcp->Connect())

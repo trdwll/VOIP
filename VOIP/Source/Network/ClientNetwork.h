@@ -5,6 +5,8 @@
 
 namespace VOIP {
 
+	typedef void(*ClientMessageReceivedHandler)(std::string message);
+
 	/** Use TCP for text */
 	class ClientTCPNetwork : public TCPNetwork
 	{
@@ -19,6 +21,10 @@ namespace VOIP {
 		virtual bool Receive(ClientMessageReceivedHandler handler) = 0;
 
 		virtual void SendChatMessage(std::string Message) = 0;
+
+	protected:
+		// this only needs to be on the client
+		ClientMessageReceivedHandler m_ClientMessageReceivedEvent;
 	};
 
 	/** Use UDP for voice */

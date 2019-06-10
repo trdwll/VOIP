@@ -28,6 +28,8 @@ namespace VOIP {
 		// send to a specific user
 		void SendChatMessageTo(std::string Message, SOCKET ClientSocket) override;
 
+		void SetCallback(ServerMessageReceivedHandler handler) override;
+
 	private:
 		/** Variables */
 

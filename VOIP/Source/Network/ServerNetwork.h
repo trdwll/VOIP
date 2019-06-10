@@ -5,6 +5,13 @@
 
 namespace VOIP {
 
+#ifdef VOIP_PLATFORM_WINDOWS
+	// typedef std::function<void (ServerTCPNetwork* Listener, SOCKET socketID, std::string message)> *ServerMessageReceivedHandler;
+	typedef void(*ServerMessageReceivedHandler)(ServerTCPNetwork* Listener, SOCKET socketID, std::string message);
+#elif VOIP_PLATFORM_LINUX
+	typedef void(*ServerMessageReceivedHandler)(ServerTCPNetwork* Listener, int32 socketID, std::string message);
+#endif
+
 	/** Use TCP for text */
 	class ServerTCPNetwork : public TCPNetwork
 	{
@@ -17,6 +24,11 @@ namespace VOIP {
 		
 		// send to a specific user
 		virtual void SendChatMessageTo(std::string Message, SOCKET ClientSocket) = 0; 
+
+		virtual void SetCallback(ServerMessageReceivedHandler handler) = 0;
+
+	protected:
+		ServerMessageReceivedHandler m_ServerMessageReceivedEvent;
 	};
 
 	/** Use UDP for voice */

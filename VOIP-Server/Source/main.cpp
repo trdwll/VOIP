@@ -1,14 +1,18 @@
 
 #include <Network/ServerNetwork.h>
+#include <Network/Platform//Windows/WindowsServerNetwork.h>
 
 #include <memory.h>
 #include <string.h>
 #include <WinSock2.h>
 
-void MessageReceived(class TCPNetwork* Listener, SOCKET socketID, std::string message)
+class ServerTCPNetwork;
+
+void MessageReceived(ServerTCPNetwork* Listener, SOCKET socketID, std::string message)
 {
 	std::string strOut = "SOCKET #" + std::to_string(socketID) + ": " + message + "\r";
-	// Listener->SendChatMessage(strOut, socketID);
+	// Listener->SendChatMessageTo(strOut, socketID);
+	//Listener->GetHost();
 
 	//logging msg in the server
 	std::cout << "SOCKET " << socketID << ": " << message << "\r";
@@ -18,11 +22,12 @@ int main()
 {
 	VOIP::Logger::Init();
 
-	std::shared_ptr<VOIP::ServerTCPNetwork> server_tcp_connection(VOIP::Network::CreateServerTCPNetwork());
-	server_tcp_connection->SetHost("localhost");
-	server_tcp_connection->SetPort(DEFAULT_PORT);
+	std::shared_ptr<VOIP::ServerTCPNetwork> server_tcp(VOIP::Network::CreateServerTCPNetwork());
+	server_tcp->SetHost("127.0.0.1");
+	server_tcp->SetPort(DEFAULT_PORT);
+	server_tcp->SetCallback((VOIP::ServerMessageReceivedHandler)MessageReceived);
 
-	if (server_tcp_connection->Connect())
+	if (server_tcp->Connect())
 	{
 		std::string inputstr;
 
@@ -32,7 +37,7 @@ int main()
 			if (inputstr == "exit") break;
 
 			inputstr += "\n";
-			server_tcp_connection->SendChatMessageTo("Hey man", NULL);
+			server_tcp->SendChatMessageTo(inputstr, NULL);
 		}
 	}
 }
