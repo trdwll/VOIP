@@ -143,6 +143,7 @@ namespace VOIP {
 		});
 	}
 
+	// This isn't being used...
 	bool WindowsClientTCPNetwork::Receive(ClientMessageReceivedHandler handler)
 	{
 		m_ClientMessageReceivedEvent = handler;
@@ -178,13 +179,17 @@ namespace VOIP {
 				}
 				else
 				{
-					VOIP_CORE_WARN("Message is empty");
+					VOIP_CORE_WARN("Message is empty!");
 				}
 			}
 			else
 			{
 				VOIP_CORE_ERROR("Socket is invalid. Error: {0}", WSAGetLastError());
 			}
+		}
+		else
+		{
+			VOIP_CORE_ERROR("You're not connected to a server so you're not able to send any messages.");
 		}
 	}
 

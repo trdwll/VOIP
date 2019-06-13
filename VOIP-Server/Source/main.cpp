@@ -1,20 +1,23 @@
 
 #include <Network/ServerNetwork.h>
-#include <Network/Platform//Windows/WindowsServerNetwork.h>
 
 #include <memory.h>
 #include <string.h>
+
+#ifdef VOIP_PLATFORM_WINDOWS
 #include <WinSock2.h>
+#endif
 
-class ServerTCPNetwork;
 
-void MessageReceived(ServerTCPNetwork* Listener, SOCKET socketID, std::string message)
+#ifdef VOIP_PLATFORM_WINDOWS
+void MessageReceived(class VOIP::ServerTCPNetwork* Listener, SOCKET socketID, std::string message)
+#elif defined(VOIP_PLATFORM_LINUX) || defined(VOIP_PLATFORM_MAC)
+void MessageReceived(class VOIP::ServerTCPNetwork* Listener, int32 socketID, std::string message)
+#endif
 {
 	std::string strOut = "SOCKET #" + std::to_string(socketID) + ": " + message + "\r";
-	// Listener->SendChatMessageTo(strOut, socketID);
-	//Listener->GetHost();
-
-	//logging msg in the server
+	Listener->SendChatMessageTo(strOut, socketID);
+	
 	std::cout << "SOCKET " << socketID << ": " << message << "\r";
 }
 
@@ -34,7 +37,10 @@ int main()
 		while (true)
 		{
 			std::getline(std::cin, inputstr);
-			if (inputstr == "exit") break;
+			if (inputstr == "exit")
+			{
+				break;
+			}
 
 			inputstr += "\n";
 			server_tcp->SendChatMessageTo(inputstr, NULL);

@@ -76,7 +76,7 @@ namespace VOIP {
 			for (uint32 i = 0; i < master.fd_count; i++)
 			{
 				SOCKET client = master.fd_array[i];
-				if ((client != m_ListenSocket) && (client != NULL))
+				if ((client != m_ListenSocket))// && (client != NULL))
 				{
 					send(client, Message.c_str(), Message.size() + 1, 0);
 				}
@@ -164,7 +164,7 @@ namespace VOIP {
 			return;
 		}
 
-		fd_set master;
+		// fd_set master;
 		FD_ZERO(&master);
 		FD_SET(m_ListenSocket, &master);
 
@@ -206,9 +206,12 @@ namespace VOIP {
 					}
 					else
 					{
-						if (m_ServerMessageReceivedEvent != NULL)
+						std::string msg = std::string(buf, 0, ReceivedBytes);
+						if (m_ServerMessageReceivedEvent != NULL && !msg.empty())
 						{
-							m_ServerMessageReceivedEvent(this, socket, std::string(buf, 0, ReceivedBytes));
+							// SendChatMessageToAll(msg);
+							m_ServerMessageReceivedEvent(this, socket, msg);
+							VOIP_CORE_INFO("Message received: {0}", msg);
 						}
 					}
 				}

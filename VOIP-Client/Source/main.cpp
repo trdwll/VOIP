@@ -7,7 +7,7 @@
 
 void MsgRecv(std::string Message) 
 {
-	std::cout << "MSG: " << Message << std::endl;
+	std::cout << "MSG FROM SERVER: " << Message << std::endl;
 }
 
 int main()
@@ -17,6 +17,8 @@ int main()
 	std::shared_ptr<VOIP::ClientTCPNetwork> client_tcp(VOIP::TCPNetwork::CreateClientTCPNetwork());
 
 	// SClientData* ClientData;
+	// ClientData.Username = "John";
+	// ClientData.DisplayName = "JOHN";
 	// client_tcp_connection->SetClientData(&ClientData);
 
 	client_tcp->SetHost("127.0.0.1");

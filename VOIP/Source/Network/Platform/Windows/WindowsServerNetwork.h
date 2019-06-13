@@ -19,16 +19,16 @@ namespace VOIP {
 		WindowsServerTCPNetwork();
 		virtual ~WindowsServerTCPNetwork();
 
-		bool Connect() override;
-		void Disconnect() override;
+		virtual bool Connect() override;
+		virtual void Disconnect() override;
 
 		// sends to all users except self
-		void SendChatMessageToAll(std::string Message) override;
+		virtual void SendChatMessageToAll(std::string Message) override;
 
 		// send to a specific user
-		void SendChatMessageTo(std::string Message, SOCKET ClientSocket) override;
+		virtual void SendChatMessageTo(std::string Message, SOCKET ClientSocket) override;
 
-		void SetCallback(ServerMessageReceivedHandler handler) override;
+		virtual void SetCallback(ServerMessageReceivedHandler handler) override;
 
 	private:
 		/** Variables */

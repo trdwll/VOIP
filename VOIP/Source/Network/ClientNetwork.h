@@ -23,7 +23,6 @@ namespace VOIP {
 		virtual void SendChatMessage(std::string Message) = 0;
 
 	protected:
-		// this only needs to be on the client
 		ClientMessageReceivedHandler m_ClientMessageReceivedEvent;
 	};
 
